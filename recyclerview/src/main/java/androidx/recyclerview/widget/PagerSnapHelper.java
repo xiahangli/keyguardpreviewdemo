@@ -18,6 +18,7 @@ package androidx.recyclerview.widget;
 
 import android.graphics.PointF;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ import androidx.annotation.Nullable;
  * PagerSnapHelper to the {@link RecyclerView} using {@link #attachToRecyclerView(RecyclerView)}.
  */
 public class PagerSnapHelper extends SnapHelper {
+    private static final String TAG = "PagerSnapHelper";
     private static final int MAX_SCROLL_ON_FLING_DURATION = 100; // ms
 
     // Orientation helpers are lazily created per LayoutManager.
@@ -68,6 +70,7 @@ public class PagerSnapHelper extends SnapHelper {
     @Nullable
     @Override
     public View findSnapView(RecyclerView.LayoutManager layoutManager) {
+        Log.i(TAG, "findSnapView: ");
         if (layoutManager.canScrollVertically()) {
             return findCenterView(layoutManager, getVerticalHelper(layoutManager));
         } else if (layoutManager.canScrollHorizontally()) {
@@ -79,6 +82,7 @@ public class PagerSnapHelper extends SnapHelper {
     @Override
     public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,
             int velocityY) {
+        Log.i(TAG, "findTargetSnapPosition: ");
         final int itemCount = layoutManager.getItemCount();
         if (itemCount == 0) {
             return RecyclerView.NO_POSITION;

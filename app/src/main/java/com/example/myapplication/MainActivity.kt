@@ -1,76 +1,144 @@
 package com.example.myapplication
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
+//import androidx.appcompat.app.AppCompatActivity
+//import androidx.recyclerview.widget.
 import com.example.myapplication.databinding.ActivityMainBinding
-import java.lang.reflect.Field
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
     private val TAG = "MainActivity"
     private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val recyclerView = binding.root.findViewById<RecyclerView>(R.id.rv)
         val llm = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         recyclerView.layoutManager = llm
         val psh = PagerSnapHelper()
-        val itemAnimator = DefaultItemAnimator()
-        recyclerView.itemAnimator = itemAnimator
+//        val animator = DefaultItemAnimator()
+        recyclerView.itemAnimator = null
         psh.attachToRecyclerView(recyclerView)
         val verticalAdapter = VerticalAdapter(this)
         // 设置adapter会在源码中清空缓存，这里只是加载一个空的rv,不会触发onCreateViewHolder
         recyclerView.adapter = verticalAdapter
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            var childAt: View? = null
+            var sumY: Int = 0
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                var horizontalLLM = verticalAdapter.getHorizontalLm()
+                var findLastVisibleItemPosition = horizontalLLM!!.findLastVisibleItemPosition()
+                val horizAdapter = verticalAdapter.getHorizontalAdapter()
+                sumY = 0
+                childAt = horizontalLLM.getChildAt(findLastVisibleItemPosition)
+                Log.i(
+                    TAG, "onScrollStateChanged: newState $newState" +
+                            " findLastVisibleItemPosition $findLastVisibleItemPosition lastVisibleChild $childAt"
+                )
+
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+               /* if (dy < 0) {
+                    var layoutParams: MarginLayoutParams =
+                        childAt!!.layoutParams as MarginLayoutParams
+                    sumY = sumY.plus(abs(dy))
+                    if (sumY > 150) return
+//                    childAt!!.translationX = sumY.toFloat()
+                    layoutParams.leftMargin = sumY
+                    childAt!!.layoutParams = layoutParams
+
+                    Log.i(TAG, "onScrolled: child ${childAt} translateY $sumY")
+                }*/
+            }
+        })
         verticalAdapter.notifyDataSetChanged()
     }
 
-    inner class MyVH(item: View) : ViewHolder(item) {
+    inner class MyVH(item: View) : RecyclerView.ViewHolder(item) {
 
     }
-
 
 
     inner class VerticalAdapter(val context: Context) :
         RecyclerView.Adapter<MyVH>() {
+        private var recyclerView: RecyclerView? = null
         public val TYPE_NORMAL: Int = 1
         public val TYPE_TOP: Int = 2
         public val TYPE_BOTTOM: Int = 3
+
+        fun getBottomRecyclerView(): RecyclerView? {
+            return recyclerView
+        }
+
+        var horiAdapter: HorizontalAdapter? = null
+        var horizontalLLM: LinearLayoutManager? = null
+        fun getHorizontalAdapter(): HorizontalAdapter? {
+            return horiAdapter
+        }
+
+        fun getHorizontalLm(): LinearLayoutManager? {
+            return horizontalLLM
+        }
+
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyVH {
             var view: View
             if (viewType == TYPE_TOP) {
                 view = LayoutInflater.from(context)
                     .inflate(R.layout.vertical_rv_item_1, parent, false)
-            }  else {
+            } else {
                 view = LayoutInflater.from(context)
                     .inflate(R.layout.vertical_rv_item_2, parent, false)
-                val recyclerView = view.findViewById<RecyclerView>(R.id.horizontal_rv)
-                val vllm = LinearLayoutManager(context, RecyclerView.HORIZONTAL,false)
-                recyclerView.layoutManager = vllm
+                recyclerView = view.findViewById<RecyclerView>(R.id.horizontal_rv)
+                horizontalLLM = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+                recyclerView!!.layoutManager = horizontalLLM
                 val pager = PagerSnapHelper()
                 pager.attachToRecyclerView(recyclerView)
-                recyclerView.addItemDecoration(MyItemDecorator())
-                recyclerView.adapter = HorizontalAdapter()
+                recyclerView!!.addItemDecoration(MyItemDecorator())
+                recyclerView!!.itemAnimator = DefaultItemAnimator()
+                horizontalLLM!!.findLastVisibleItemPosition()
+                horiAdapter = HorizontalAdapter()
+                recyclerView!!.adapter = horiAdapter
+                recyclerView!!.viewTreeObserver.addOnGlobalLayoutListener(object :
+                    OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        var findFirstVisibleItemPosition =
+                            horizontalLLM!!.findFirstVisibleItemPosition()
+                        var findLastVisibleItemPosition =
+                            horizontalLLM!!.findLastVisibleItemPosition()
+                        Log.i(
+                            TAG,
+                            "onGlobalLayout: findFirstVisibleItemPosition $findFirstVisibleItemPosition " +
+                                    "findLastVisibleItemPosition $findLastVisibleItemPosition"
+                        )
+
+                    }
+                })
+
             }
 
-            Log.i(TAG, "onCreateViewHolder: view " + view)
+//            Log.i(TAG, "onCreateViewHolder: view " + view)
             return MyVH(view)
         }
+
 
         override fun getItemCount(): Int {
             return 2
@@ -94,10 +162,15 @@ class MainActivity : AppCompatActivity() {
 //               notifyItemRemoved(6)
 //               notifyDataSetChanged()
 //           }
+//            notify
+        }
+
+        fun getSecondItem(): View? {
+            return null
         }
     }
 
-    inner class MyItemDecorator : ItemDecoration() {
+    inner class MyItemDecorator : RecyclerView.ItemDecoration() {
         override fun getItemOffsets(
             outRect: Rect,
             view: View,
@@ -105,22 +178,44 @@ class MainActivity : AppCompatActivity() {
             state: RecyclerView.State
         ) {
 //            parent.getChildAdapterPosition(view)
-            outRect.set(20,20,20,20)
+            outRect.set(20, 20, 20, 20)
         }
 
     }
 
     inner class HorizontalAdapter : RecyclerView.Adapter<HorizontalAdapter.VH>() {
 
-        val strings = arrayListOf("item1","item2","item3","item4","item5","item6")
+        val strings = arrayListOf(
+            "item0",
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19"
+        )
 
-        inner class VH(item:View) :RecyclerView.ViewHolder(item){
+        inner class VH(item: View) : RecyclerView.ViewHolder(item) {
 
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.horizontal_rv_item, parent, false)
+            Log.i(TAG, "onCreateViewHolder: view $view")
             return VH(view)
         }
 
@@ -129,7 +224,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            holder.itemView.findViewById<TextView>(android.R.id.text1).setText(strings[position])
+            var itemView = holder.itemView.findViewById<TextView>(android.R.id.text1)
+            if (position == 1) {
+                itemView.translationX = 150f
+                // 动效
+//                var animate = findViewById.animate()
+//                animate.scaleX(0.5f).scaleY(.5f).withStartAction {
+//                    findViewById.scaleX = 1f
+//                    findViewById.scaleY = 1f
+//                }.withEndAction {
+//
+//                }.duration = 20
+//                animate.start()
+            }
+
+            itemView.text = strings[position]
         }
     }
 }

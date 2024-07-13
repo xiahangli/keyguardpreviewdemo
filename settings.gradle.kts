@@ -20,6 +20,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "My Application"
-include(":app")
+include(":window")
 include(":framesync")
 include(":recyclerview")
+include(":activity")

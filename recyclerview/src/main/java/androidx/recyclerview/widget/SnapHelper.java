@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget;
 
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
@@ -191,6 +192,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
             return;
         }
         int[] snapDistance = calculateDistanceToFinalSnap(layoutManager, snapView);
+        Log.i("Henry", "snapToTargetExistingView: "+snapDistance[1]);
         if (snapDistance[0] != 0 || snapDistance[1] != 0) {
             mRecyclerView.smoothScrollBy(snapDistance[0], snapDistance[1]);
         }

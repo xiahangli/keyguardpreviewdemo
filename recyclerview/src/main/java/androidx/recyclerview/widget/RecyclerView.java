@@ -5249,7 +5249,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         @Override
         public void run() {
-            Log.i(TAG, "run: 1111111111111111111111111 ");
             if (mLayout == null) {
                 stop();
                 return; // no layout, cannot scroll.

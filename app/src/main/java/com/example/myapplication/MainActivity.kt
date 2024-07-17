@@ -62,19 +62,26 @@ class MainActivity : Activity() {
                     isTopRvBottomItem = (toprv.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() == 1
                     Log.i(TAG, "onScrollStateChanged: isTopRvBottomItem $isTopRvBottomItem")
                 }
+                Log.i(TAG, "onScrollStateChanged: newState is $newState isAnimating ${toprv.isAnimating} isComputingLayout ${toprv.isComputingLayout}")
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Log.i(TAG, "onScrollStateChanged: newState is idle")
                     val animator = ValueAnimator.ofFloat(0f, 1.0f)
                     animator.duration = 300
+                    toprv.isComputingLayout
                     animator.addUpdateListener {
                         var value = it.animatedValue as Float
+                        nextPage?.run {
+                            translationX =  itemOffset * (1 - value)
+                        }
+                        prevPage?.run{
+                            translationX = -itemOffset * (1-value)
+                        }
                     }
                     animator.start()
                 }
-                Log.i(
-                    TAG, "onScrollStateChanged: newState $newState" +
-                            " findLastVisibleItemPosition $findLastVisibleItemPosition lastVisibleChild $prevPage"
-                )
+//                Log.i(
+//                    TAG, "onScrollStateChanged: newState $newState" +
+//                            " findLastVisibleItemPosition $findLastVisibleItemPosition lastVisibleChild $prevPage"
+//                )
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -84,12 +91,15 @@ class MainActivity : Activity() {
                 if (sumY >= itemOffset) sumY = itemOffset
                 if (sumY <= 0) sumY = 0f
                 Log.i(TAG, "onScrolled: prePage $prevPage")
-                prevPage?.run {
-                    translationX = -sumY
+                if (isTopRvBottomItem){//底部需要跟手
+                    prevPage?.run {
+                        translationX = -sumY
+                    }
+                    nextPage?.run {
+                        translationX = sumY
+                    }
                 }
-                nextPage?.run {
-                    translationX = sumY
-                }
+
 //                if (dy < 0) {
 //                }else {
 //                }

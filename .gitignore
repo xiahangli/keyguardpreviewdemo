@@ -8,10 +8,6 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-.idea/gradle.xml
-.idea/deploymentTargetSelector.xml
-gradle/
-gradle/libs.versions.toml
 /build
 /app/build/
 /recyclerview/build/

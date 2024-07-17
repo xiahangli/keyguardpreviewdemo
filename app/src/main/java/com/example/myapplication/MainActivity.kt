@@ -39,12 +39,14 @@ class MainActivity : Activity() {
         topRv.adapter = verticalAdapter
         topRv.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         topRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            private var isTopRvBottomItem: Boolean = false
+
             //            private var mIsUp :Boolean = false
             var prevPage: View? = null
             var nextPage: View? = null
             var sumY: Float = 0f
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
+            override fun onScrollStateChanged(toprv: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(toprv, newState)
                 var horizontalLLM = verticalAdapter.getHorizontalLm()
                 var findLastVisibleItemPosition = horizontalLLM!!.findLastVisibleItemPosition()
                 var findFirstVisibleItemPosition = horizontalLLM!!.findFirstVisibleItemPosition()
@@ -56,6 +58,10 @@ class MainActivity : Activity() {
                     prevPage=null
 
                 sumY = 0f
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
+                    isTopRvBottomItem = (toprv.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() == 1
+                    Log.i(TAG, "onScrollStateChanged: isTopRvBottomItem $isTopRvBottomItem")
+                }
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     Log.i(TAG, "onScrollStateChanged: newState is idle")
                     val animator = ValueAnimator.ofFloat(0f, 1.0f)
@@ -85,7 +91,6 @@ class MainActivity : Activity() {
                     translationX = sumY
                 }
 //                if (dy < 0) {
-//
 //                }else {
 //                }
             }

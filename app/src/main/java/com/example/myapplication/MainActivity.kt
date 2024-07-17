@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
@@ -17,6 +16,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 //import androidx.appcompat.app.AppCompatActivity
 //import androidx.recyclerview.widget.
 import com.example.myapplication.databinding.ActivityMainBinding
@@ -42,83 +42,64 @@ class MainActivity : Activity() {
         recyclerView.adapter = verticalAdapter
         recyclerView.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            private var mIsUp :Boolean = false
-            var childAt: View? = null
+//            private var mIsUp :Boolean = false
+            var prevPage: View? = null
+            var nextPage: View? = null
             var sumY: Float = 0f
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 var horizontalLLM = verticalAdapter.getHorizontalLm()
-                // 这个
                 var findLastVisibleItemPosition = horizontalLLM!!.findLastVisibleItemPosition()
-                val horizAdapter = verticalAdapter.getHorizontalAdapter()
+                var prePageVH = verticalAdapter.getBottomRecyclerView()?.findViewHolderForAdapterPosition(findLastVisibleItemPosition) as? MyVH
+                var nextPageVH = verticalAdapter.getBottomRecyclerView()?.findViewHolderForAdapterPosition(findLastVisibleItemPosition) as? MyVH
+                prevPage = prePageVH?.itemView
+                nextPage = nextPageVH?.itemView
                 sumY = 0f
-                // 这个只能拿到当前屏幕可见的index,超过2用2代替
-                if (findLastVisibleItemPosition >= 2)
-                    findLastVisibleItemPosition = 2
-                childAt = horizontalLLM.getChildAt(findLastVisibleItemPosition)
-                if (childAt==null) return
-                if (newState == RecyclerView.SCROLL_STATE_IDLE ) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     Log.i(TAG, "onScrollStateChanged: newState is idle")
-                    if (mIsUp){
-//                        val animator = ObjectAnimator.ofFloat(childAt,0,1f)
                         val animator = ValueAnimator.ofFloat(0f, 1.0f)
                         animator.duration = 300
                         animator.addUpdateListener {
-                            var values = it.animatedValue as Float
-                            var lp = childAt!!.layoutParams as  MarginLayoutParams
-                            lp.leftMargin = (150*(1f.minus(values))).toInt()
-                            childAt!!.layoutParams = lp
+                            var value = it.animatedValue as Float
                         }
                         animator.start()
-
-                    }
                 }
                 Log.i(
                     TAG, "onScrollStateChanged: newState $newState" +
-                            " findLastVisibleItemPosition $findLastVisibleItemPosition lastVisibleChild $childAt"
+                            " findLastVisibleItemPosition $findLastVisibleItemPosition lastVisibleChild $prevPage"
                 )
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
+
+                sumY += dy // 内容上划，dy>0
                 if (dy < 0) {
-//                    if (childAt == null)return
-
-                    var horizontalLLM = verticalAdapter.getHorizontalLm()
-                    var findLastVisibleItemPosition = horizontalLLM!!.findLastVisibleItemPosition()
-                    childAt = horizontalLLM.getChildAt(2)
-                    mIsUp=false
-                    var layoutParams: MarginLayoutParams =
-                        childAt!!.layoutParams as MarginLayoutParams
-                    sumY = sumY.plus(abs(dy))
                     if (sumY >= 150f) sumY = 150f
-//                    childAt!!.translationX = sumY.toFloat()
-                    layoutParams.leftMargin = sumY.toInt()
-                    childAt!!.layoutParams = layoutParams
-
-                    Log.i(TAG, "onScrolled: child ${childAt} translateY $sumY")
                 }else {
-                    mIsUp=true
                 }
             }
         })
-        verticalAdapter.notifyDataSetChanged()
     }
 
-    inner class MyVH(item: View) : RecyclerView.ViewHolder(item) {
-
-    }
+    inner class MyVH(item: View) : ViewHolder(item)
 
 
     inner class VerticalAdapter(val context: Context) :
         RecyclerView.Adapter<MyVH>() {
-        private var recyclerView: RecyclerView? = null
+        private var bottomRecycler: RecyclerView? = null
         public val TYPE_NORMAL: Int = 1
         public val TYPE_TOP: Int = 2
         public val TYPE_BOTTOM: Int = 3
+        var topRecycler:RecyclerView?=null
+
+        override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+            super.onAttachedToRecyclerView(recyclerView)
+            topRecycler = recyclerView;
+        }
 
         fun getBottomRecyclerView(): RecyclerView? {
-            return recyclerView
+            return bottomRecycler
         }
 
         var horiAdapter: HorizontalAdapter? = null
@@ -140,35 +121,17 @@ class MainActivity : Activity() {
             } else {
                 view = LayoutInflater.from(context)
                     .inflate(R.layout.vertical_rv_item_2, parent, false)
-                recyclerView = view.findViewById<RecyclerView>(R.id.horizontal_rv)
+                bottomRecycler = view.findViewById<RecyclerView>(R.id.horizontal_rv)
                 horizontalLLM = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-                recyclerView!!.layoutManager = horizontalLLM
+                bottomRecycler!!.layoutManager = horizontalLLM
                 val pager = PagerSnapHelper()
-                pager.attachToRecyclerView(recyclerView)
-                recyclerView!!.addItemDecoration(MyItemDecorator())
-                recyclerView!!.itemAnimator = DefaultItemAnimator()
+                pager.attachToRecyclerView(bottomRecycler)
+                bottomRecycler!!.addItemDecoration(MyItemDecorator())
+                bottomRecycler!!.itemAnimator = DefaultItemAnimator()
                 horizontalLLM!!.findLastVisibleItemPosition()
                 horiAdapter = HorizontalAdapter()
-                recyclerView!!.adapter = horiAdapter
-                recyclerView!!.viewTreeObserver.addOnGlobalLayoutListener(object :
-                    OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        var findFirstVisibleItemPosition =
-                            horizontalLLM!!.findFirstVisibleItemPosition()
-                        var findLastVisibleItemPosition =
-                            horizontalLLM!!.findLastVisibleItemPosition()
-                        Log.i(
-                            TAG,
-                            "onGlobalLayout: findFirstVisibleItemPosition $findFirstVisibleItemPosition " +
-                                    "findLastVisibleItemPosition $findLastVisibleItemPosition"
-                        )
-
-                    }
-                })
-
+                bottomRecycler!!.adapter = horiAdapter
             }
-
-//            Log.i(TAG, "onCreateViewHolder: view " + view)
             return MyVH(view)
         }
 
@@ -187,16 +150,7 @@ class MainActivity : Activity() {
             return TYPE_NORMAL
         }
 
-        override fun onBindViewHolder(holder: MyVH, position: Int) {
-//            var textView = holder.itemView.findViewById<TextView>(android.R.id.text1)
-//            textView.text = strings[position]
-//           textView.setOnClickListener {
-//               strings.removeAt(6)
-//               notifyItemRemoved(6)
-//               notifyDataSetChanged()
-//           }
-//            notify
-        }
+        override fun onBindViewHolder(holder: MyVH, position: Int) {}
 
         fun getSecondItem(): View? {
             return null
@@ -213,7 +167,7 @@ class MainActivity : Activity() {
             var pos = parent.getChildAdapterPosition(view)
 
             if (pos==0){
-                outRect.set(100,20,20,20)
+                outRect.set(110,20,20,20)
             }else{
                 outRect.set(20, 20, 20, 20)
 
@@ -247,7 +201,7 @@ class MainActivity : Activity() {
             "item19"
         )
 
-        inner class VH(item: View) : RecyclerView.ViewHolder(item) {
+        inner class VH(item: View) : ViewHolder(item) {
 
         }
 
@@ -264,22 +218,6 @@ class MainActivity : Activity() {
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             var itemView = holder.itemView.findViewById<TextView>(android.R.id.text1)
-            if (position == 1) {
-                var lp = itemView.layoutParams as MarginLayoutParams
-                lp.leftMargin = 150
-                itemView.layoutParams = lp
-
-                // 动效
-//                var animate = findViewById.animate()
-//                animate.scaleX(0.5f).scaleY(.5f).withStartAction {
-//                    findViewById.scaleX = 1f
-//                    findViewById.scaleY = 1f
-//                }.withEndAction {
-//
-//                }.duration = 20
-//                animate.start()
-            }
-
             itemView.text = strings[position]
         }
     }

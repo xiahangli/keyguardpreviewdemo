@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/vertical_rv_item_1.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/vertical_rv_item_1.xml"
+    },
+    {
+        "merged": "com.example.window-mergeDebugResources-49:/layout/window.xml",
+        "source": "com.example.window-main-52:/layout/window.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/fragment_second.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/fragment_second.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/vertical_rv_item_2.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/vertical_rv_item_2.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/content_main.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/content_main.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/horizontal_rv_item.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/horizontal_rv_item.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/activity_main.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/window.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/window.xml"
+    },
+    {
+        "merged": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-mergeDebugResources-49:/layout/fragment_first.xml",
+        "source": "/Users/macbookpro/.gradle/daemon/8.6/com.example.window-main-52:/layout/fragment_first.xml"
+    }
+]

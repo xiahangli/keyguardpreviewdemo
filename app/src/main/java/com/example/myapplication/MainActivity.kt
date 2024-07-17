@@ -29,11 +29,11 @@ class MainActivity : Activity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val topRv = binding.root.findViewById<RecyclerView>(R.id.rv)
-        val llm = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        topRv.layoutManager = llm
-        val psh = PagerSnapHelper()
+        val verticalRvLayoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        topRv.layoutManager = verticalRvLayoutManager
+        val verticalRvSnapHelper = PagerSnapHelper()
         topRv.itemAnimator = null
-        psh.attachToRecyclerView(topRv)
+        verticalRvSnapHelper.attachToRecyclerView(topRv)
         val verticalAdapter = VerticalAdapter(this)
         // 设置adapter会在源码中清空缓存，这里只是加载一个空的rv,不会触发onCreateViewHolder
         topRv.adapter = verticalAdapter
@@ -63,20 +63,34 @@ class MainActivity : Activity() {
                     Log.i(TAG, "onScrollStateChanged: isTopRvBottomItem $isTopRvBottomItem")
                 }
                 Log.i(TAG, "onScrollStateChanged: newState is $newState isAnimating ${toprv.isAnimating} isComputingLayout ${toprv.isComputingLayout}")
+
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    val animator = ValueAnimator.ofFloat(0f, 1.0f)
-                    animator.duration = 300
-                    toprv.isComputingLayout
-                    animator.addUpdateListener {
-                        var value = it.animatedValue as Float
-                        nextPage?.run {
-                            translationX =  itemOffset * (1 - value)
+                    // 顶部到底部需要动画
+                    var findSnapView = verticalRvSnapHelper.findSnapView(verticalRvLayoutManager)
+                    var id = findSnapView?.id
+                    if (id == R.id.bottom) {
+                        Log.i(TAG, "onScrollStateChanged: findSnapView " + findSnapView + " id $id")
+                        val animator = ValueAnimator.ofFloat(0f, 1.0f)
+                        animator.duration = 300
+                        animator.addUpdateListener {
+                            var value = it.animatedValue as Float
+                            nextPage?.run {
+                                var transX = translationX
+                                // 需要平移的具体为这个item本身已经平移的具体，平移到0
+
+                                transX = transX*( 1-value)
+                                translationX =  transX
+                            }
+                            prevPage?.run{
+                                var transX = translationX
+                                //itemOffset=120,transx是《=0的
+                                transX = transX*(1-value)
+                                translationX = transX
+                            }
                         }
-                        prevPage?.run{
-                            translationX = -itemOffset * (1-value)
-                        }
+                        animator.start()
                     }
-                    animator.start()
+
                 }
 //                Log.i(
 //                    TAG, "onScrollStateChanged: newState $newState" +
@@ -87,16 +101,28 @@ class MainActivity : Activity() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                sumY += dy // 内容上划，dy>0
-                if (sumY >= itemOffset) sumY = itemOffset
-                if (sumY <= 0) sumY = 0f
+//                sumY += dy // 内容上划，dy>0
+//                if (sumY>=itemOffset)sumY=itemOffset
+//                if (sumY<=-itemOffset)sumY=-itemOffset
+//                if (sumY >= itemOffset) sumY = itemOffset
+//                if (sumY < -itemOffset) sumY = -itemOffset
                 Log.i(TAG, "onScrolled: prePage $prevPage")
                 if (isTopRvBottomItem){//底部需要跟手
-                    prevPage?.run {
-                        translationX = -sumY
-                    }
                     nextPage?.run {
-                        translationX = sumY
+                        var transX = translationX - dy
+                        if (transX > itemOffset)
+                            transX = itemOffset
+                        if(transX<0)
+                            transX=0f
+                        translationX =transX
+                    }
+                    prevPage?.run {
+                           var transX = translationX + dy
+                        if (transX > 0)
+                            transX = 0f
+                        if(transX<-itemOffset)
+                            transX=-itemOffset
+                        translationX = transX
                     }
                 }
 

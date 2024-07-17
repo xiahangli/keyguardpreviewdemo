@@ -136,21 +136,21 @@ class MainActivity : Activity() {
 
     inner class VerticalAdapter(val context: Context) :
         RecyclerView.Adapter<VerticalAdapter.MyVH>() {
-        private var bottomRecycler: RecyclerView? = null
+        private var horizontalRecyclerView: RecyclerView? = null
         public val TYPE_NORMAL: Int = 1
         public val TYPE_TOP: Int = 2
         public val TYPE_BOTTOM: Int = 3
-        var topRecycler: RecyclerView? = null
+        var verticalRecyclerView: RecyclerView? = null
 
 
         inner class MyVH(item: View) : ViewHolder(item)
         override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
             super.onAttachedToRecyclerView(recyclerView)
-            topRecycler = recyclerView;
+            verticalRecyclerView = recyclerView;
         }
 
         fun getBottomRecyclerView(): RecyclerView? {
-            return bottomRecycler
+            return horizontalRecyclerView
         }
 
         var horiAdapter: HorizontalAdapter? = null
@@ -172,16 +172,27 @@ class MainActivity : Activity() {
             } else {
                 view = LayoutInflater.from(context)
                     .inflate(R.layout.vertical_rv_item_2, parent, false)
-                bottomRecycler = view.findViewById<RecyclerView>(R.id.horizontal_rv)
-                horizontalLLM = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-                bottomRecycler!!.layoutManager = horizontalLLM
+                horizontalRecyclerView = view.findViewById<RecyclerView>(R.id.horizontal_rv)
+
+                horizontalLLM = InterceptableLinearLayoutManager(context, RecyclerView.HORIZONTAL, false, {
+                    val isAnimating = verticalRecyclerView?.isAnimating
+                    Log.i(TAG, "onCreateViewHolder: isAnimating $isAnimating")
+                     isAnimating == true
+                },{
+                    var linearLayoutManager =
+                        verticalRecyclerView?.layoutManager as? LinearLayoutManager
+                    // 如果linearLayoutManager 为null怎么样
+                     linearLayoutManager?.findLastCompletelyVisibleItemPosition() == 1
+//                    linearLayoutManager
+                })
+                horizontalRecyclerView!!.layoutManager = horizontalLLM
                 val pager = PagerSnapHelper()
-                pager.attachToRecyclerView(bottomRecycler)
-                bottomRecycler!!.addItemDecoration(MyItemDecorator())
-                bottomRecycler!!.itemAnimator = DefaultItemAnimator()
+                pager.attachToRecyclerView(horizontalRecyclerView)
+                horizontalRecyclerView!!.addItemDecoration(MyItemDecorator())
+                horizontalRecyclerView!!.itemAnimator = DefaultItemAnimator()
                 horizontalLLM!!.findLastVisibleItemPosition()
                 horiAdapter = HorizontalAdapter()
-                bottomRecycler!!.adapter = horiAdapter
+                horizontalRecyclerView!!.adapter = horiAdapter
             }
             return MyVH(view)
         }
@@ -284,5 +295,18 @@ class MainActivity : Activity() {
                 itemView.translationX = itemOffset
             }
         }
+    }
+
+   inner class InterceptableLinearLayoutManager(context: Context,@RecyclerView.Orientation orientation: Int=RecyclerView.VERTICAL,
+                                                reverseorder:Boolean=false,var verticalScrolling :()->Boolean
+   ,var isBottomPage :()->Boolean) :
+        LinearLayoutManager(context,orientation,reverseorder) {
+
+       override fun canScrollHorizontally(): Boolean {
+           return !verticalScrolling() &&isBottomPage()&& super.canScrollHorizontally()
+       }
+//       override fun canScrollVertically(): Boolean {
+//           return !verticalScrolling() && super.canScrollVertically()
+//       }
     }
 }

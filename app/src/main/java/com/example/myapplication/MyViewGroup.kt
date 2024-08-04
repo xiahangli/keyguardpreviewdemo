@@ -72,7 +72,14 @@ class MyViewGroup : ViewGroup {
                 mIsScrolling = false
                 false // Don't intercept the touch event. Let the child handle it.
             }
-
+            /**
+             * 只有在firstTouchTarget!=null的时候，才会走到这里的action_move，原因是
+             * viewgroup在dispatchTouchEvent中调用dispatchTransformedTouchEvent,而如果我们在
+             * textview设置了clickable=true，那么就是会消费down事件，dispatchTransformedTouchEvent返回true
+             * 然后addTouchTarget就将这个textView添加到这个viewgroup的mFirstTouchTarget，此时在下一个dispatchTouchEvent=move的时候
+             * 判断如果mFirstTouchTarget!=null，就会继续尝试onInterceptTouchEvent拦截
+             *
+             */
             MotionEvent.ACTION_MOVE -> {
                 Log.i(TAG, "onInterceptTouchEvent: move mIsScrolling=$mIsScrolling")
 

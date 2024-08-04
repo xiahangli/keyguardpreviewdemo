@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -174,19 +175,13 @@ class MainActivity : Activity() {
                     .inflate(R.layout.vertical_rv_item_2, parent, false)
                 horizontalRecyclerView = view.findViewById<RecyclerView>(R.id.horizontal_rv)
 
-                horizontalLLM = InterceptableLinearLayoutManager(context, RecyclerView.HORIZONTAL, false, {
-                    val isAnimating = verticalRecyclerView?.isAnimating
-                    Log.i(TAG, "onCreateViewHolder: isAnimating $isAnimating")
-                     isAnimating == true
-                },{
-                    var linearLayoutManager =
-                        verticalRecyclerView?.layoutManager as? LinearLayoutManager
-                    // 如果linearLayoutManager 为null怎么样
-                     linearLayoutManager?.findLastCompletelyVisibleItemPosition() == 1
-//                    linearLayoutManager
+                horizontalLLM = HorizontalLinearLayoutManager(context, RecyclerView.HORIZONTAL, false, scrollHorizon = {
+//                    val isAnimating = verticalRecyclerView?.isAnimating
+//                     isAnimating == true
+                    return@HorizontalLinearLayoutManager true
                 })
                 horizontalRecyclerView!!.layoutManager = horizontalLLM
-                val pager = PagerSnapHelper()
+                val pager = LinearSnapHelper()
                 pager.attachToRecyclerView(horizontalRecyclerView)
                 horizontalRecyclerView!!.addItemDecoration(MyItemDecorator())
                 horizontalRecyclerView!!.itemAnimator = DefaultItemAnimator()
@@ -297,17 +292,14 @@ class MainActivity : Activity() {
         }
     }
 
-   inner class InterceptableLinearLayoutManager(context: Context,@RecyclerView.Orientation orientation: Int=RecyclerView.VERTICAL,
-                                                reverseorder:Boolean=false,var verticalScrolling :()->Boolean
-   ,var isBottomPage :()->Boolean) :
+   inner class HorizontalLinearLayoutManager(context: Context, @RecyclerView.Orientation orientation: Int=RecyclerView.VERTICAL,
+                                             reverseorder:Boolean=false, var scrollHorizon :()->Boolean) :
         LinearLayoutManager(context,orientation,reverseorder) {
 
        override fun canScrollHorizontally(): Boolean {
-           val isVer = verticalScrolling()
-           val isBot = isBottomPage()
-
-           Log.i(TAG, "canScrollHorizontally: verticalScrolling $isVer isBottomPage $isBot")
-           return !isVer &&isBot&& super.canScrollHorizontally()
+           val ret = scrollHorizon() && super.canScrollHorizontally()
+           Log.i(TAG, "canScrollHorizontally: scrollHorizon $scrollHorizon return $ret")
+           return ret
        }
 //       override fun canScrollVertically(): Boolean {
 //           return !verticalScrolling() && super.canScrollVertically()

@@ -25,9 +25,6 @@ class VerticalRecyclerView : RecyclerView {
         defStyleRes
     ) {
         Log.i(TAG, "constructor: 3")
-        postDelayed({
-            first = true
-        },3000)
     }
 
     constructor(context: Context) : this(context, null, 0) {}
@@ -41,10 +38,6 @@ class VerticalRecyclerView : RecyclerView {
     var first = false
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-
-//        if (first) {
-//            return false
-//        }
         var dispatchTouchEvent = super.dispatchTouchEvent(ev)
         Log.i(TAG, "dispatchTouchEvent: ev ${ev.action} $dispatchTouchEvent")
         return super.dispatchTouchEvent(ev)
@@ -59,7 +52,6 @@ class VerticalRecyclerView : RecyclerView {
     override fun onTouchEvent(e: MotionEvent): Boolean {
         var onTouchEvent = super.onTouchEvent(e)
         Log.i(TAG, "onTouchEvent: ev ${e.action} $onTouchEvent")
-
         return onTouchEvent
     }
 

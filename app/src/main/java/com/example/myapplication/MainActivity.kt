@@ -51,19 +51,25 @@ class MainActivity : Activity() {
                 var horizontalLLM = verticalAdapter.getHorizontalLm()
                 var findLastVisibleItemPosition = horizontalLLM!!.findLastVisibleItemPosition()
                 var findFirstVisibleItemPosition = horizontalLLM!!.findFirstVisibleItemPosition()
-                var preVH = verticalAdapter.getBottomRecyclerView()?.findViewHolderForAdapterPosition(findFirstVisibleItemPosition) as? HorizontalAdapter.VH
-                var nextVH = verticalAdapter.getBottomRecyclerView()?.findViewHolderForAdapterPosition(findLastVisibleItemPosition) as? HorizontalAdapter.VH
+                var preVH = verticalAdapter.getBottomRecyclerView()
+                    ?.findViewHolderForAdapterPosition(findFirstVisibleItemPosition) as? HorizontalAdapter.VH
+                var nextVH = verticalAdapter.getBottomRecyclerView()
+                    ?.findViewHolderForAdapterPosition(findLastVisibleItemPosition) as? HorizontalAdapter.VH
                 prevPage = preVH?.itemView
                 nextPage = nextVH?.itemView
-                if (findLastVisibleItemPosition==1)
-                    prevPage=null
+                if (findLastVisibleItemPosition == 1)
+                    prevPage = null
 
                 sumY = 0f
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING){
-                    isTopRvBottomItem = (toprv.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() == 1
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    isTopRvBottomItem =
+                        (toprv.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() == 1
                     Log.i(TAG, "onScrollStateChanged: isTopRvBottomItem $isTopRvBottomItem")
                 }
-                Log.i(TAG, "onScrollStateChanged: newState is $newState isAnimating ${toprv.isAnimating} isComputingLayout ${toprv.isComputingLayout}")
+                Log.i(
+                    TAG,
+                    "onScrollStateChanged: newState is $newState isAnimating ${toprv.isAnimating} isComputingLayout ${toprv.isComputingLayout}"
+                )
 
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     // 顶部到底部需要动画
@@ -78,14 +84,13 @@ class MainActivity : Activity() {
                             nextPage?.run {
                                 var transX = translationX
                                 // 需要平移的具体为这个item本身已经平移的具体，平移到0
-
-                                transX = transX*( 1-value)
-                                translationX =  transX
+                                transX = transX * (1 - value)
+                                translationX = transX
                             }
-                            prevPage?.run{
+                            prevPage?.run {
                                 var transX = translationX
                                 //itemOffset=120,transx是《=0的
-                                transX = transX*(1-value)
+                                transX = transX * (1 - value)
                                 translationX = transX
                             }
                         }
@@ -107,29 +112,29 @@ class MainActivity : Activity() {
 //                if (sumY<=-itemOffset)sumY=-itemOffset
 //                if (sumY >= itemOffset) sumY = itemOffset
 //                if (sumY < -itemOffset) sumY = -itemOffset
-                Log.i(TAG, "onScrolled: prePage $prevPage")
-                if (isTopRvBottomItem){//底部需要跟手
+                Log.i(
+                    TAG,
+                    "onScrolled: prePage $prevPage $isTopRvBottomItem nextPage=$nextPage prevPage=$prevPage"
+                )
+                if (isTopRvBottomItem) {//底部需要跟手
                     nextPage?.run {
                         var transX = translationX - dy
                         if (transX > itemOffset)
                             transX = itemOffset
-                        if(transX<0)
-                            transX=0f
-                        translationX =transX
+                        if (transX < 0)
+                            transX = 0f
+                        translationX = transX
                     }
                     prevPage?.run {
-                           var transX = translationX + dy
+                        var transX = translationX + dy
                         if (transX > 0)
                             transX = 0f
-                        if(transX<-itemOffset)
-                            transX=-itemOffset
+                        if (transX < -itemOffset)
+                            transX = -itemOffset
                         translationX = transX
                     }
                 }
 
-//                if (dy < 0) {
-//                }else {
-//                }
             }
         })
     }
@@ -145,6 +150,7 @@ class MainActivity : Activity() {
 
 
         inner class MyVH(item: View) : ViewHolder(item)
+
         override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
             super.onAttachedToRecyclerView(recyclerView)
             verticalRecyclerView = recyclerView;
@@ -175,11 +181,15 @@ class MainActivity : Activity() {
                     .inflate(R.layout.vertical_rv_item_2, parent, false)
                 horizontalRecyclerView = view.findViewById<RecyclerView>(R.id.horizontal_rv)
 
-                horizontalLLM = HorizontalLinearLayoutManager(context, RecyclerView.HORIZONTAL, false, scrollHorizon = {
+                horizontalLLM = HorizontalLinearLayoutManager(
+                    context,
+                    RecyclerView.HORIZONTAL,
+                    false,
+                    scrollHorizon = {
 //                    val isAnimating = verticalRecyclerView?.isAnimating
 //                     isAnimating == true
-                    return@HorizontalLinearLayoutManager true
-                })
+                        return@HorizontalLinearLayoutManager true
+                    })
                 horizontalRecyclerView!!.layoutManager = horizontalLLM
                 val pager = LinearSnapHelper()
                 pager.attachToRecyclerView(horizontalRecyclerView)
@@ -213,7 +223,8 @@ class MainActivity : Activity() {
             return null
         }
     }
-    var itemOffset=96f
+
+    var itemOffset = 96f
 //    var invisibleItemOffset=20f
 
     inner class MyItemDecorator : RecyclerView.ItemDecoration() {
@@ -262,8 +273,8 @@ class MainActivity : Activity() {
 
         override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
             super.onAttachedToRecyclerView(recyclerView)
-            recyclerView.post{
-                itemOffset = (recyclerView.width - recyclerView.getChildAt(0).width - 20)/2f
+            recyclerView.post {
+                itemOffset = (recyclerView.width - recyclerView.getChildAt(0).width - 20) / 2f
             }
         }
 
@@ -285,22 +296,24 @@ class MainActivity : Activity() {
         override fun onBindViewHolder(holder: VH, position: Int) {
             var itemView = holder.itemView.findViewById<TextView>(android.R.id.text1)
             itemView.text = strings[position]
-            if (position==1)
-            {
-                itemView.translationX = itemOffset
-            }
+//            if (position==1 && firstAppear)
+//            {
+//                itemView.translationX = itemOffset
+//            }
         }
     }
 
-   inner class HorizontalLinearLayoutManager(context: Context, @RecyclerView.Orientation orientation: Int=RecyclerView.VERTICAL,
-                                             reverseorder:Boolean=false, var scrollHorizon :()->Boolean) :
-        LinearLayoutManager(context,orientation,reverseorder) {
+    inner class HorizontalLinearLayoutManager(
+        context: Context, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL,
+        reverseorder: Boolean = false, var scrollHorizon: () -> Boolean
+    ) :
+        LinearLayoutManager(context, orientation, reverseorder) {
 
-       override fun canScrollHorizontally(): Boolean {
-           val ret = scrollHorizon() && super.canScrollHorizontally()
-           Log.i(TAG, "canScrollHorizontally: scrollHorizon $scrollHorizon return $ret")
-           return ret
-       }
+        override fun canScrollHorizontally(): Boolean {
+            val ret = scrollHorizon() && super.canScrollHorizontally()
+            Log.i(TAG, "canScrollHorizontally: scrollHorizon $scrollHorizon return $ret")
+            return ret
+        }
 //       override fun canScrollVertically(): Boolean {
 //           return !verticalScrolling() && super.canScrollVertically()
 //       }

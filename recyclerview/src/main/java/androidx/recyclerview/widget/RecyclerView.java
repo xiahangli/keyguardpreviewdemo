@@ -3199,7 +3199,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
                 if (mScrollState == SCROLL_STATE_SETTLING) {
                     getParent().requestDisallowInterceptTouchEvent(true);
-//                    setScrollState(SCROLL_STATE_DRAGGING);
+                    setScrollState(SCROLL_STATE_DRAGGING);
                     stopNestedScroll(TYPE_NON_TOUCH);
                 }
 
@@ -3414,14 +3414,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 final float yvel = canScrollVertically
                         ? -mVelocityTracker.getYVelocity(mScrollPointerId) : 0;
                 if (!((xvel != 0 || yvel != 0) && fling((int) xvel, (int) yvel))) {
-//                    setScrollState(SCROLL_STATE_IDLE);
+                    setScrollState(SCROLL_STATE_IDLE);
                 }
                 resetScroll();
             } break;
 
             case MotionEvent.ACTION_CANCEL: {
-                // TODO 弄了半天，其实是这里，在下一次手势的时候取消了fling的操作
-//                cancelScroll();
+                cancelScroll();
             } break;
         }
 
@@ -5411,8 +5410,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (mReSchedulePostAnimationCallback) {
                 internalPostOnAnimation();
             } else {
-                // TODO 这里才是停止？
-//                setScrollState(SCROLL_STATE_IDLE);
+                setScrollState(SCROLL_STATE_IDLE);
                 stopNestedScroll(TYPE_NON_TOUCH);
             }
         }

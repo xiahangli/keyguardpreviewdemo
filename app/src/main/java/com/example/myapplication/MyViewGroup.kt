@@ -32,7 +32,7 @@ class MyViewGroup : ViewGroup {
                 return@setOnTouchListener when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         Log.i(TAG, "tv onTouch : down parent $parent this $this getchild(0) ${getChildAt(0)}")
-                        getChildAt(0).parent.requestDisallowInterceptTouchEvent(true)
+//                        getChildAt(0).parent.requestDisallowInterceptTouchEvent(true)
                         true
 
                     }

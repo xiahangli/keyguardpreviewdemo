@@ -18,6 +18,10 @@ class HorizontalRecyclerView : RecyclerView {
         Log.i(TAG, "init")
     }
 
+    override fun canScrollHorizontally(direction: Int): Boolean {
+        return true
+    }
+
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         var dispatchTouchEvent = super.dispatchTouchEvent(ev)
         Log.i(TAG, "dispatchTouchEvent: ev ${ev.action} $dispatchTouchEvent")
@@ -26,7 +30,7 @@ class HorizontalRecyclerView : RecyclerView {
 
     override fun onInterceptTouchEvent(e: MotionEvent): Boolean {
         var onInterceptTouchEvent = super.onInterceptTouchEvent(e)
-        Log.i(TAG, "dispatchTouchEvent: ev ${e.action} $onInterceptTouchEvent")
+        Log.i(TAG, "onInterceptTouchEvent: ev ${e.action} $onInterceptTouchEvent")
         return onInterceptTouchEvent
     }
 

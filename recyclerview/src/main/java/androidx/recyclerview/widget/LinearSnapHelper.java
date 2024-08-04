@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget;
 
 import android.graphics.PointF;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -60,6 +61,8 @@ public class LinearSnapHelper extends SnapHelper {
         return out;
     }
 
+    private static final String TAG = "LinearSnapHelper";
+
     @Override
     public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,
             int velocityY) {
@@ -97,6 +100,7 @@ public class LinearSnapHelper extends SnapHelper {
         if (layoutManager.canScrollHorizontally()) {
             hDeltaJump = estimateNextPositionDiffForFling(layoutManager,
                     getHorizontalHelper(layoutManager), velocityX, 0);
+            Log.i(TAG, "findTargetSnapPosition: hDeltaJump " + hDeltaJump);
             if (vectorForEnd.x < 0) {
                 hDeltaJump = -hDeltaJump;
             }

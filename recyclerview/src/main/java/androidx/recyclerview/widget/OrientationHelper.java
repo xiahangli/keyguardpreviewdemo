@@ -17,6 +17,7 @@
 package androidx.recyclerview.widget;
 
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -247,6 +248,8 @@ public abstract class OrientationHelper {
         throw new IllegalArgumentException("invalid orientation");
     }
 
+    private static final String TAG = "OrientationHelper";
+
     /**
      * Creates a horizontal OrientationHelper for the given LayoutManager.
      *
@@ -268,6 +271,7 @@ public abstract class OrientationHelper {
 
             @Override
             public void offsetChildren(int amount) {
+                Log.i(TAG, "offsetChildren: amount " + amount);
                 mLayoutManager.offsetChildrenHorizontal(amount);
             }
 

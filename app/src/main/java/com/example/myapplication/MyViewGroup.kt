@@ -6,16 +6,55 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.widget.TextView
 
-class MyViewGroup @JvmOverloads constructor(
-    context: Context,attr: AttributeSet?= null, defStyleRes :Int = 0
-) : ViewGroup(context, attr,defStyleRes) {
-    private var mIsScrolling: Boolean =false
+class MyViewGroup : ViewGroup {
+    private var tv: TextView?=null
+    private var mIsScrolling: Boolean = false
     private var x0: Float = 0f
     private var y0: Float = 0f
 
 
+    constructor(context: Context?, attr: AttributeSet?) : this(context, attr, 0) {
+        Log.i(TAG, "constructor: 2")
+    }
+
+    constructor(context: Context?, attr: AttributeSet?, defStyleRes: Int) : super(
+        context,
+        attr,
+        defStyleRes
+    ) {
+        Log.i(TAG, "constructor: 3")
+        post {
+            tv = findViewById<TextView>(R.id.textView)
+            Log.i(TAG, "post: tv $tv")
+            tv?.setOnTouchListener { v, event ->
+                return@setOnTouchListener when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        Log.i(TAG, "tv onTouch : down parent $parent this $this getchild(0) ${getChildAt(0)}")
+//                        getChildAt(0).parent.requestDisallowInterceptTouchEvent(true)
+                        true
+
+                    }
+                    MotionEvent.ACTION_MOVE-> {
+                        Log.i(TAG, "tv onTouch : move return true")
+                        true
+                    }
+                    else ->
+                        onTouchEvent(event)
+                }
+            }
+        }
+
+    }
+
+    constructor(context: Context?) : this(context, null, 0)
+
     private val mTouchSlop: Int = ViewConfiguration.get(context).scaledTouchSlop
+
+    init {
+        Log.i(TAG, "init")
+    }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         return super.dispatchTouchEvent(ev)
@@ -33,6 +72,7 @@ class MyViewGroup @JvmOverloads constructor(
                 mIsScrolling = false
                 false // Don't intercept the touch event. Let the child handle it.
             }
+
             MotionEvent.ACTION_MOVE -> {
                 Log.i(TAG, "onInterceptTouchEvent: move mIsScrolling=$mIsScrolling")
 
@@ -63,6 +103,7 @@ class MyViewGroup @JvmOverloads constructor(
                 }
 
             }
+
             else -> {
                 // In general, don't intercept touch events. The child view
                 // handles them.
@@ -72,8 +113,9 @@ class MyViewGroup @JvmOverloads constructor(
     }
 
     private fun calculateDistanceY(ev: MotionEvent): Float {
-       return  ev.getY(0) - lastY
+        return ev.getY(0) - lastY
     }
+
     var lastY = 0f
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -82,9 +124,10 @@ class MyViewGroup @JvmOverloads constructor(
         // the touch event is intercepted in onInterceptTouchEvent.
         if (event.action == MotionEvent.ACTION_MOVE) {
             val y1 = event.getY(0)
-            val yDiff = y1 -lastY
+            val yDiff = y1 - lastY
             lastY = y1
             getChildAt(0).translationY += yDiff
+            Log.i(TAG, "onTouchEvent: tranlation ${getChildAt(0).translationY}")
         }
         return super.onTouchEvent(event)
     }
@@ -93,7 +136,7 @@ class MyViewGroup @JvmOverloads constructor(
         getChildAt(0).layout(left, top, right, bottom)
     }
 
-    companion object{
+    companion object {
         const val TAG = "MyViewGroup"
     }
 }

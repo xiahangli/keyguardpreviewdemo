@@ -8,13 +8,11 @@
     android:contentDescription="bottom"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.example.myapplication.HorizontalRecyclerView
         android:layout_width="337dp"
         android:id="@+id/horizontal_rv"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_height="556dp"
-        tools:layout_editor_absoluteX="37dp"
-        tools:layout_editor_absoluteY="74dp" />
+        android:layout_height="556dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

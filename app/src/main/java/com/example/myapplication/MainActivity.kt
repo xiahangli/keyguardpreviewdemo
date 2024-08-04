@@ -303,7 +303,11 @@ class MainActivity : Activity() {
         LinearLayoutManager(context,orientation,reverseorder) {
 
        override fun canScrollHorizontally(): Boolean {
-           return !verticalScrolling() &&isBottomPage()&& super.canScrollHorizontally()
+           val isVer = verticalScrolling()
+           val isBot = isBottomPage()
+
+           Log.i(TAG, "canScrollHorizontally: verticalScrolling $isVer isBottomPage $isBot")
+           return !isVer &&isBot&& super.canScrollHorizontally()
        }
 //       override fun canScrollVertically(): Boolean {
 //           return !verticalScrolling() && super.canScrollVertically()
